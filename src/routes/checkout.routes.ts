@@ -14,5 +14,6 @@ const checkoutService = new CheckoutService(cartRepository, productRepository, o
 const checkoutController = new CheckoutController(checkoutService);
 
 router.post('/', validate(checkoutSchema), checkoutController.processCheckout);
+router.post('/validate-discount', checkoutController.validateDiscount);
 
 export default router;

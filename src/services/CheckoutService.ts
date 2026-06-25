@@ -14,6 +14,10 @@ export class CheckoutService {
     private discountService: DiscountService
   ) {}
 
+  public async validateDiscount(discountCode: string) {
+    return await this.discountService.validateCoupon(discountCode);
+  }
+
   public async checkout(customerId: string, discountCode?: string) {
     // 1. Fetch customer cart.
     const cart = await this.cartRepository.findByUserId(customerId);

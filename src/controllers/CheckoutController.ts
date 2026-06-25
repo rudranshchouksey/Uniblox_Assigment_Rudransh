@@ -10,4 +10,10 @@ export class CheckoutController {
     const orderSummary = await this.checkoutService.checkout(customerId, discountCode);
     res.status(200).json({ status: 'success', data: orderSummary });
   });
+
+  public validateDiscount = asyncHandler(async (req: Request, res: Response) => {
+    const { code } = req.body;
+    const coupon = await this.checkoutService.validateDiscount(code);
+    res.status(200).json({ status: 'success', data: coupon });
+  });
 }

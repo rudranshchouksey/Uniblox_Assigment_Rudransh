@@ -32,6 +32,7 @@ export class AnalyticsService {
       totalRevenue,
       totalDiscountGiven,
       discountCodes,
+      orders: orders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()),
     };
   }
 }
