@@ -10,7 +10,7 @@ const envSchema = z.object({
   API_PREFIX: z.string().default('/api'),
   NTH_ORDER: z.coerce.number().default(3),
   DISCOUNT_PERCENTAGE: z.coerce.number().default(10),
-  FRONTEND_URL: z.string().url().default('http://localhost:3000'),
+  FRONTEND_URL: z.string().url().default('https://uniblox-assigment-rudransh-frontend.vercel.app'),
 });
 
 const _env = envSchema.safeParse(process.env);
