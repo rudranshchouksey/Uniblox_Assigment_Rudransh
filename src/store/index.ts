@@ -47,15 +47,15 @@ const seedProducts: Product[] = [
 const seedDiscounts: DiscountCode[] = [
   {
     code: 'WELCOME10',
-    type: 'PERCENTAGE',
-    value: 10,
-    isActive: true,
+    percentage: 10,
+    used: false,
+    generatedAt: new Date(),
   },
   {
-    code: 'MINUS20',
-    type: 'FIXED',
-    value: 20,
-    isActive: true,
+    code: 'TESTUSED10',
+    percentage: 10,
+    used: true,
+    generatedAt: new Date(Date.now() - 86400000), // 1 day ago
   }
 ];
 

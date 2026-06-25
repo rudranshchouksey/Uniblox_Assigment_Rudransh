@@ -38,7 +38,7 @@ export interface Order {
 
 export interface DiscountCode {
   code: string;
-  type: 'PERCENTAGE' | 'FIXED';
-  value: number; // e.g. 10 for 10% or 10 for $10 off
-  isActive: boolean;
+  percentage: number;
+  used: boolean;
+  generatedAt: Date;
 }
