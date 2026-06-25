@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import cartRoutes from './cart.routes';
+import checkoutRoutes from './checkout.routes';
 
 const router = Router();
 
@@ -9,5 +10,6 @@ router.get('/health', (req: Request, res: Response) => {
 });
 
 router.use('/cart', cartRoutes);
+router.use('/checkout', checkoutRoutes);
 
 export default router;
