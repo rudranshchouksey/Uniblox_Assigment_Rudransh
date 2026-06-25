@@ -3,6 +3,7 @@ import { Order } from '../models';
 export interface IOrderRepository {
   findById(id: string): Promise<Order | null>;
   findByUserId(userId: string): Promise<Order[]>;
+  findAll(): Promise<Order[]>;
   create(order: Order): Promise<Order>;
   updateStatus(id: string, status: Order['status']): Promise<Order | null>;
 }
@@ -20,6 +21,10 @@ export class InMemoryOrderRepository implements IOrderRepository {
 
   async findByUserId(userId: string): Promise<Order[]> {
     return Array.from(this.orders.values()).filter(order => order.userId === userId);
+  }
+
+  async findAll(): Promise<Order[]> {
+    return Array.from(this.orders.values());
   }
 
   async create(order: Order): Promise<Order> {

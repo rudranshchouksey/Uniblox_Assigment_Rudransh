@@ -20,6 +20,32 @@ export class DiscountService {
     return successfulOrders.length > 0 && (successfulOrders.length % this.NTH_ORDER === 0);
   }
 
+  public async isGlobalEligibleForCoupon(): Promise<boolean> {
+    const orders = await this.orderRepository.findAll();
+    const successfulOrders = orders.filter(order => order.status === 'COMPLETED');
+
+    return successfulOrders.length > 0 && (successfulOrders.length % this.NTH_ORDER === 0);
+  }
+
+  public async generateAdminCoupon(): Promise<DiscountCode | null> {
+    const isEligible = await this.isGlobalEligibleForCoupon();
+    
+    if (!isEligible) {
+      return null;
+    }
+
+    const code = uuidv4().substring(0, 8).toUpperCase();
+    
+    const newCoupon: DiscountCode = {
+      code,
+      percentage: this.DISCOUNT_PERCENTAGE,
+      used: false,
+      generatedAt: new Date(),
+    };
+
+    return await this.discountRepository.create(newCoupon);
+  }
+
   public async generateCoupon(customerId: string): Promise<DiscountCode | null> {
     const isEligible = await this.isEligibleForCoupon(customerId);
     
