@@ -22,7 +22,7 @@ export class ProductController {
   });
 
   public updateProduct = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const updates = req.body;
     
     const product = await productRepository.update(id, updates);
@@ -34,7 +34,7 @@ export class ProductController {
   });
 
   public deleteProduct = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = req.params.id as string;
     
     const success = await productRepository.delete(id);
     if (!success) {
