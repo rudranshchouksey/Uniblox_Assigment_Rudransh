@@ -60,19 +60,38 @@ describe('CheckoutService', () => {
 
       expect(summary.subtotal).toBe(250);
       expect(summary.discountAmount).toBe(0);
-      expect(summary.total).toBe(250);
+      expect(summary.totalAmount).toBe(250);
       expect(summary.items).toHaveLength(2);
       expect(summary.items[0].priceAtPurchase).toBe(100);
-      expect(summary.appliedCoupon).toBeUndefined();
+      expect(summary.discountApplied).toBeUndefined();
       
       // Verify cart is cleared
       const cartAfter = await cartRepo.findByUserId('cust-1');
       expect(cartAfter?.items).toHaveLength(0);
 
       // Verify order is created
-      const order = await orderRepo.findById(summary.orderId);
+      const order = await orderRepo.findById(summary.id);
       expect(order).not.toBeNull();
       expect(order?.status).toBe('COMPLETED');
+
+      // Verify stock is decremented
+      const product1 = await productRepo.findById('prod-1');
+      const product2 = await productRepo.findById('prod-2');
+      expect(product1?.stock).toBe(8); // 10 - 2
+      expect(product2?.stock).toBe(4); // 5 - 1
+    });
+
+    it('should throw ValidationError if stock is insufficient during checkout', async () => {
+      await cartRepo.create({
+        id: 'cart-1',
+        userId: 'cust-1',
+        items: [
+          { productId: 'prod-1', quantity: 15 }, // Only 10 available
+        ]
+      });
+
+      await expect(checkoutService.checkout('cust-1')).rejects.toThrow(ValidationError);
+      await expect(checkoutService.checkout('cust-1')).rejects.toThrow('Not enough stock available for P1. Only 10 items left.');
     });
 
     it('should successfully checkout and apply a valid discount code', async () => {
@@ -86,8 +105,8 @@ describe('CheckoutService', () => {
 
       expect(summary.subtotal).toBe(100);
       expect(summary.discountAmount).toBe(10); // 10% of 100
-      expect(summary.total).toBe(90);
-      expect(summary.appliedCoupon).toBe('VALID10');
+      expect(summary.totalAmount).toBe(90);
+      expect(summary.discountApplied).toBe('VALID10');
 
       // Verify coupon is marked as used
       const coupon = await discountRepo.findByCode('VALID10');

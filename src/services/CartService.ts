@@ -38,8 +38,15 @@ export class CartService {
     const existingItemIndex = cart.items.findIndex(item => item.productId === productId);
 
     if (existingItemIndex > -1) {
-      cart.items[existingItemIndex].quantity += quantity;
+      const newQuantity = cart.items[existingItemIndex].quantity + quantity;
+      if (newQuantity > product.stock) {
+        throw new ValidationError(`Not enough stock available. Only ${product.stock} items left.`);
+      }
+      cart.items[existingItemIndex].quantity = newQuantity;
     } else {
+      if (quantity > product.stock) {
+        throw new ValidationError(`Not enough stock available. Only ${product.stock} items left.`);
+      }
       cart.items.push({ productId, quantity });
     }
 
@@ -66,6 +73,10 @@ export class CartService {
 
     if (existingItemIndex === -1) {
       throw new NotFoundError('Item not found in cart');
+    }
+
+    if (quantity > product.stock) {
+      throw new ValidationError(`Not enough stock available. Only ${product.stock} items left.`);
     }
 
     cart.items[existingItemIndex].quantity = quantity;

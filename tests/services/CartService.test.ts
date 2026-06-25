@@ -60,6 +60,16 @@ describe('CartService', () => {
     it('should throw NotFoundError if product does not exist', async () => {
       await expect(cartService.addItem('customer-1', 'invalid-prod', 1)).rejects.toThrow(NotFoundError);
     });
+
+    it('should throw ValidationError if quantity exceeds available stock', async () => {
+      await expect(cartService.addItem('customer-1', 'prod-1', 11)).rejects.toThrow(ValidationError);
+      await expect(cartService.addItem('customer-1', 'prod-1', 11)).rejects.toThrow('Not enough stock available. Only 10 items left.');
+    });
+
+    it('should throw ValidationError if cumulative quantity exceeds available stock', async () => {
+      await cartService.addItem('customer-1', 'prod-1', 8);
+      await expect(cartService.addItem('customer-1', 'prod-1', 3)).rejects.toThrow(ValidationError);
+    });
   });
 
   describe('updateItemQuantity', () => {
@@ -81,6 +91,11 @@ describe('CartService', () => {
 
     it('should throw NotFoundError if item is not in cart', async () => {
       await expect(cartService.updateItemQuantity('customer-1', 'prod-1', 5)).rejects.toThrow(NotFoundError);
+    });
+
+    it('should throw ValidationError if updated quantity exceeds available stock', async () => {
+      await cartService.addItem('customer-1', 'prod-1', 2);
+      await expect(cartService.updateItemQuantity('customer-1', 'prod-1', 11)).rejects.toThrow(ValidationError);
     });
   });
 

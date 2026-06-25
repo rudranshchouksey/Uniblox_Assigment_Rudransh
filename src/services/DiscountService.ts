@@ -3,10 +3,11 @@ import { IDiscountRepository } from '../repositories/DiscountRepository';
 import { IOrderRepository } from '../repositories/OrderRepository';
 import { ValidationError, NotFoundError } from '../errors/AppError';
 import { v4 as uuidv4 } from 'uuid';
+import { env } from '../config/env';
 
 export class DiscountService {
-  private readonly NTH_ORDER = 3;
-  private readonly DISCOUNT_PERCENTAGE = 10;
+  private globalCouponsGenerated = 0;
+  private userCouponsGenerated: Map<string, number> = new Map();
 
   constructor(
     private discountRepository: IDiscountRepository,
@@ -16,26 +17,34 @@ export class DiscountService {
   public async isEligibleForCoupon(customerId: string): Promise<boolean> {
     const orders = await this.orderRepository.findByUserId(customerId);
     const successfulOrders = orders.filter(order => order.status === 'COMPLETED');
+    const milestonesAchieved = Math.floor(successfulOrders.length / env.NTH_ORDER);
+    const generatedForUser = this.userCouponsGenerated.get(customerId) || 0;
 
-    return successfulOrders.length > 0 && (successfulOrders.length % this.NTH_ORDER === 0);
+    return milestonesAchieved > generatedForUser;
   }
 
   public async isGlobalEligibleForCoupon(): Promise<boolean> {
     const orders = await this.orderRepository.findAll();
     const successfulOrders = orders.filter(order => order.status === 'COMPLETED');
+    const milestonesAchieved = Math.floor(successfulOrders.length / env.NTH_ORDER);
 
-    return successfulOrders.length > 0 && (successfulOrders.length % this.NTH_ORDER === 0);
+    return milestonesAchieved > this.globalCouponsGenerated;
   }
 
   public async generateAdminCoupon(): Promise<DiscountCode | null> {
     const isEligible = await this.isGlobalEligibleForCoupon();
     if (!isEligible) return null;
+    
+    this.globalCouponsGenerated++;
     return this.createNewCoupon();
   }
 
   public async generateCoupon(customerId: string): Promise<DiscountCode | null> {
     const isEligible = await this.isEligibleForCoupon(customerId);
     if (!isEligible) return null;
+    
+    const currentCount = this.userCouponsGenerated.get(customerId) || 0;
+    this.userCouponsGenerated.set(customerId, currentCount + 1);
     return this.createNewCoupon();
   }
 
@@ -44,7 +53,7 @@ export class DiscountService {
     
     const newCoupon: DiscountCode = {
       code,
-      percentage: this.DISCOUNT_PERCENTAGE,
+      percentage: env.DISCOUNT_PERCENTAGE,
       used: false,
       generatedAt: new Date(),
     };

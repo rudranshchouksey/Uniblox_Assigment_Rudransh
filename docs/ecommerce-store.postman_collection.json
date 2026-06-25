@@ -14,7 +14,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/api/health",
+              "raw": "{{API_URL}}/api/health",
               "protocol": "http",
               "host": ["localhost"],
               "port": "3000",
@@ -33,7 +33,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/api/cart/cust-1",
+              "raw": "{{API_URL}}/api/cart/cust-1",
               "protocol": "http",
               "host": ["localhost"],
               "port": "3000",
@@ -56,7 +56,7 @@
               "raw": "{\n  \"customerId\": \"cust-1\",\n  \"productId\": \"prod_1\",\n  \"quantity\": 2\n}"
             },
             "url": {
-              "raw": "http://localhost:3000/api/cart/items",
+              "raw": "{{API_URL}}/api/cart/items",
               "protocol": "http",
               "host": ["localhost"],
               "port": "3000",
@@ -79,7 +79,7 @@
               "raw": "{\n  \"customerId\": \"cust-1\",\n  \"quantity\": 5\n}"
             },
             "url": {
-              "raw": "http://localhost:3000/api/cart/items/prod_1",
+              "raw": "{{API_URL}}/api/cart/items/prod_1",
               "protocol": "http",
               "host": ["localhost"],
               "port": "3000",
@@ -102,7 +102,7 @@
               "raw": "{\n  \"customerId\": \"cust-1\"\n}"
             },
             "url": {
-              "raw": "http://localhost:3000/api/cart/items/prod_1",
+              "raw": "{{API_URL}}/api/cart/items/prod_1",
               "protocol": "http",
               "host": ["localhost"],
               "port": "3000",
@@ -130,7 +130,7 @@
               "raw": "{\n  \"customerId\": \"cust-1\",\n  \"discountCode\": \"WELCOME10\"\n}"
             },
             "url": {
-              "raw": "http://localhost:3000/api/checkout",
+              "raw": "{{API_URL}}/api/checkout",
               "protocol": "http",
               "host": ["localhost"],
               "port": "3000",
@@ -149,7 +149,7 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/api/admin/discounts/generate",
+              "raw": "{{API_URL}}/api/admin/discounts/generate",
               "protocol": "http",
               "host": ["localhost"],
               "port": "3000",
@@ -163,7 +163,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/api/admin/stats",
+              "raw": "{{API_URL}}/api/admin/stats",
               "protocol": "http",
               "host": ["localhost"],
               "port": "3000",

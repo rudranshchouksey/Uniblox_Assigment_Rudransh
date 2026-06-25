@@ -78,12 +78,21 @@ npm install
 
 ### 3. Environment Setup
 
-Copy the example environment variables file and update it if necessary:
+This application is 100% environment-driven. There are no hardcoded URLs, ports, or business logic configuration.
+
+Copy the example environment variables file:
 
 ```bash
 cp .env.example .env
 ```
-*(Note: A `.env` file is optional for the core functionality as fallback defaults are established, but it is best practice to define variables such as `PORT=3000`.)*
+
+Configuring `.env` is the **only required step** before deployment. Variables include:
+- `PORT`: Server port
+- `NODE_ENV`: 'development' or 'production'
+- `API_PREFIX`: Route prefix (e.g., `/api`)
+- `NTH_ORDER`: The threshold for generating global discounts
+- `DISCOUNT_PERCENTAGE`: The percentage given by discounts
+- `FRONTEND_URL`: CORS origin configuration
 
 ### 4. Running the Application
 

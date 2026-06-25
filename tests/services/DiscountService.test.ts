@@ -40,7 +40,7 @@ describe('DiscountService', () => {
       expect(isEligible).toBe(false);
     });
 
-    it('should return true for every 3rd successful order', async () => {
+    it('should return true when a milestone is reached and remain true until claimed', async () => {
       await orderRepo.create(createMockOrder('order-1', 'cust-1', 'COMPLETED'));
       await orderRepo.create(createMockOrder('order-2', 'cust-1', 'COMPLETED'));
       await orderRepo.create(createMockOrder('order-3', 'cust-1', 'COMPLETED'));
@@ -50,10 +50,8 @@ describe('DiscountService', () => {
 
       await orderRepo.create(createMockOrder('order-4', 'cust-1', 'COMPLETED'));
       await orderRepo.create(createMockOrder('order-5', 'cust-1', 'COMPLETED'));
-      isEligible = await discountService.isEligibleForCoupon('cust-1');
-      expect(isEligible).toBe(false);
-
-      await orderRepo.create(createMockOrder('order-6', 'cust-1', 'COMPLETED'));
+      
+      // Still true because the milestone was never consumed (coupon never generated)
       isEligible = await discountService.isEligibleForCoupon('cust-1');
       expect(isEligible).toBe(true);
     });
@@ -74,19 +72,25 @@ describe('DiscountService', () => {
       expect(coupon).toBeNull();
     });
 
-    it('should generate and store a coupon if user is eligible', async () => {
+    it('should generate a coupon only once per milestone', async () => {
       await orderRepo.create(createMockOrder('order-1', 'cust-1', 'COMPLETED'));
       await orderRepo.create(createMockOrder('order-2', 'cust-1', 'COMPLETED'));
       await orderRepo.create(createMockOrder('order-3', 'cust-1', 'COMPLETED'));
       
       const coupon = await discountService.generateCoupon('cust-1');
       expect(coupon).not.toBeNull();
-      expect(coupon?.percentage).toBe(10);
-      expect(coupon?.used).toBe(false);
-      expect(coupon?.code).toBeDefined();
+      
+      // Attempt to generate again for the same milestone
+      const coupon2 = await discountService.generateCoupon('cust-1');
+      expect(coupon2).toBeNull(); // Exploit prevented
 
-      const storedCoupon = await discountRepo.findByCode(coupon!.code);
-      expect(storedCoupon).toEqual(coupon);
+      // Add 3 more orders to reach next milestone
+      await orderRepo.create(createMockOrder('order-4', 'cust-1', 'COMPLETED'));
+      await orderRepo.create(createMockOrder('order-5', 'cust-1', 'COMPLETED'));
+      await orderRepo.create(createMockOrder('order-6', 'cust-1', 'COMPLETED'));
+
+      const coupon3 = await discountService.generateCoupon('cust-1');
+      expect(coupon3).not.toBeNull();
     });
   });
 

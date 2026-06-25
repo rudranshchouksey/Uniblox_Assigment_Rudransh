@@ -33,6 +33,10 @@ export class CheckoutService {
         throw new NotFoundError(`Product with ID ${item.productId} no longer exists`);
       }
       
+      if (item.quantity > product.stock) {
+        throw new ValidationError(`Not enough stock available for ${product.name}. Only ${product.stock} items left.`);
+      }
+
       const priceAtPurchase = product.price;
       subtotal += priceAtPurchase * item.quantity;
       
@@ -41,6 +45,9 @@ export class CheckoutService {
         quantity: item.quantity,
         priceAtPurchase
       });
+
+      // Decrement stock
+      await this.productRepository.update(product.id, { stock: product.stock - item.quantity });
     }
 
     // 4. Validate coupon if provided.
@@ -83,15 +90,7 @@ export class CheckoutService {
     }
 
     // 10. Return order summary.
-    return {
-      orderId: order.id,
-      subtotal: order.subtotal,
-      discountAmount: order.discountAmount,
-      total: order.totalAmount,
-      items: order.items,
-      appliedCoupon: order.discountApplied,
-      createdAt: order.createdAt
-    };
+    return order;
   }
 
   private updateAnalytics(order: Order) {
