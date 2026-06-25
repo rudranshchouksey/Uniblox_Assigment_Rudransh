@@ -39,13 +39,13 @@ export class AdminController {
 
   public disableCoupon = asyncHandler(async (req: Request, res: Response) => {
     const { code } = req.params;
-    const coupon = await this.discountService.disableCoupon(code);
+    const coupon = await this.discountService.disableCoupon(code as string);
     res.status(200).json({ status: 'success', data: coupon });
   });
 
   public deleteCoupon = asyncHandler(async (req: Request, res: Response) => {
     const { code } = req.params;
-    await this.discountService.deleteCoupon(code);
+    await this.discountService.deleteCoupon(code as string);
     res.status(200).json({ status: 'success', message: 'Coupon deleted' });
   });
 }

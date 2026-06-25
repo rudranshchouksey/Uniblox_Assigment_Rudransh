@@ -13,7 +13,15 @@ export class CheckoutController {
 
   public validateDiscount = asyncHandler(async (req: Request, res: Response) => {
     const { code } = req.body;
-    const coupon = await this.checkoutService.validateDiscount(code);
-    res.status(200).json({ status: 'success', data: coupon });
+    try {
+      const coupon = await this.checkoutService.validateDiscount(code);
+      res.status(200).json({ status: 'success', data: coupon });
+    } catch (error: any) {
+      if (error.name === 'NotFoundError' || error.name === 'ValidationError') {
+        res.status(200).json({ status: 'error', message: error.message });
+      } else {
+        throw error;
+      }
+    }
   });
 }
