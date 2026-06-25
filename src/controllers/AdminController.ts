@@ -26,4 +26,26 @@ export class AdminController {
     const stats = await this.analyticsService.getStats();
     res.status(200).json({ status: 'success', data: stats });
   });
+
+  public getAllCoupons = asyncHandler(async (req: Request, res: Response) => {
+    const coupons = await this.discountService.getAllCoupons();
+    res.status(200).json({ status: 'success', data: coupons });
+  });
+
+  public createCoupon = asyncHandler(async (req: Request, res: Response) => {
+    const coupon = await this.discountService.createManualCoupon(req.body);
+    res.status(201).json({ status: 'success', data: coupon });
+  });
+
+  public disableCoupon = asyncHandler(async (req: Request, res: Response) => {
+    const { code } = req.params;
+    const coupon = await this.discountService.disableCoupon(code);
+    res.status(200).json({ status: 'success', data: coupon });
+  });
+
+  public deleteCoupon = asyncHandler(async (req: Request, res: Response) => {
+    const { code } = req.params;
+    await this.discountService.deleteCoupon(code);
+    res.status(200).json({ status: 'success', message: 'Coupon deleted' });
+  });
 }

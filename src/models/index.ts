@@ -38,9 +38,14 @@ export interface Order {
   createdAt: Date;
 }
 
+export type DiscountStatus = 'ACTIVE' | 'USED' | 'EXPIRED' | 'DISABLED';
+
 export interface DiscountCode {
   code: string;
   percentage: number;
-  used: boolean;
+  status: DiscountStatus;
   generatedAt: Date;
+  expiryDate?: Date;
+  usageCount: number;
+  usageLimit?: number;
 }

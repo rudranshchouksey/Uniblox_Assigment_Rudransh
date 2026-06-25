@@ -54,8 +54,10 @@ export class DiscountService {
     const newCoupon: DiscountCode = {
       code,
       percentage: env.DISCOUNT_PERCENTAGE,
-      used: false,
+      status: 'ACTIVE',
       generatedAt: new Date(),
+      usageCount: 0,
+      usageLimit: 1,
     };
 
     return await this.discountRepository.create(newCoupon);
@@ -68,23 +70,81 @@ export class DiscountService {
       throw new NotFoundError('Invalid coupon code');
     }
 
-    if (coupon.used) {
-      throw new ValidationError('Coupon code has already been used');
+    if (coupon.status !== 'ACTIVE') {
+      throw new ValidationError(`Coupon is ${coupon.status.toLowerCase()}`);
+    }
+
+    if (coupon.expiryDate && new Date() > new Date(coupon.expiryDate)) {
+      throw new ValidationError('Coupon has expired');
+    }
+
+    if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
+      throw new ValidationError('Coupon usage limit reached');
     }
 
     return coupon;
   }
 
   public async markCouponUsed(code: string): Promise<DiscountCode> {
-    // validate first to ensure it exists and is not used
-    await this.validateCoupon(code);
+    // validate first to ensure it exists and is valid
+    const coupon = await this.validateCoupon(code);
 
-    const updatedCoupon = await this.discountRepository.update(code, { used: true });
+    const newUsageCount = coupon.usageCount + 1;
+    let newStatus = coupon.status;
+    
+    if (coupon.usageLimit && newUsageCount >= coupon.usageLimit) {
+      newStatus = 'USED';
+    }
+
+    const updatedCoupon = await this.discountRepository.update(code, { 
+      usageCount: newUsageCount,
+      status: newStatus
+    });
     
     if (!updatedCoupon) {
       throw new NotFoundError('Coupon code not found during update');
     }
 
     return updatedCoupon;
+  }
+
+  public async getAllCoupons(): Promise<DiscountCode[]> {
+    return await this.discountRepository.findAll();
+  }
+
+  public async createManualCoupon(data: { code: string; percentage: number; expiryDate?: Date; usageLimit?: number }): Promise<DiscountCode> {
+    const existing = await this.discountRepository.findByCode(data.code);
+    if (existing) {
+      throw new ValidationError('Coupon code already exists');
+    }
+
+    const newCoupon: DiscountCode = {
+      code: data.code,
+      percentage: data.percentage,
+      status: 'ACTIVE',
+      generatedAt: new Date(),
+      expiryDate: data.expiryDate,
+      usageCount: 0,
+      usageLimit: data.usageLimit,
+    };
+
+    return await this.discountRepository.create(newCoupon);
+  }
+
+  public async disableCoupon(code: string): Promise<DiscountCode> {
+    const coupon = await this.discountRepository.findByCode(code);
+    if (!coupon) throw new NotFoundError('Coupon code not found');
+
+    const updated = await this.discountRepository.update(code, { status: 'DISABLED' });
+    if (!updated) throw new NotFoundError('Failed to disable coupon');
+    
+    return updated;
+  }
+
+  public async deleteCoupon(code: string): Promise<boolean> {
+    const coupon = await this.discountRepository.findByCode(code);
+    if (!coupon) throw new NotFoundError('Coupon code not found');
+
+    return await this.discountRepository.delete(code);
   }
 }

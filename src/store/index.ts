@@ -103,14 +103,18 @@ const seedDiscounts: DiscountCode[] = [
   {
     code: 'WELCOME10',
     percentage: 10,
-    used: false,
+    status: 'ACTIVE',
     generatedAt: new Date(),
+    usageCount: 0,
+    usageLimit: 100,
   },
   {
     code: 'TESTUSED10',
     percentage: 10,
-    used: true,
+    status: 'USED',
     generatedAt: new Date(Date.now() - 86400000), // 1 day ago
+    usageCount: 1,
+    usageLimit: 1,
   }
 ];
 
